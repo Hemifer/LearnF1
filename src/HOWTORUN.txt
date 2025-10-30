@@ -1,0 +1,7 @@
+in terminal of Learn-F1\learnf1 directory: 
+
+"npm run dev"
+
+then in a seperate terminal:
+
+"node server.js" --Starts Stripe server for donation payments.
