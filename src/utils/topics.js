@@ -19,7 +19,7 @@ export async function getTopicById(id) {
 }
 
 // Create a topic
-export async function createTopic(title, description, userId, tags = []) {
+export async function createTopic(title, description, userId, tags = [], date, imageUrl =  null, audioBase64 = null) {
   const q = query(collection(db, "topics"), where("title", "==", title));
   const existing = await getDocs(q);
   if (!existing.empty) throw new Error("A topic with this title already exists.");
@@ -27,8 +27,10 @@ export async function createTopic(title, description, userId, tags = []) {
   await addDoc(collection(db, "topics"), {
     title,
     description,
-    tags,               // ✅ new field
+    tags,
+    imageUrl,
+    audioBase64,
     createdBy: userId,
-    createdAt: new Date(),
+    createdAt: new Date(date),
   });
 }

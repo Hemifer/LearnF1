@@ -2,8 +2,11 @@
 import { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useTranslation } from "react-i18next";
+import { useTransform } from "framer-motion";
 
 export default function Success() {
+  const { t } = useTranslation();
   const location = useLocation();
   const { userData } = useAuth();
   const [receipt, setReceipt] = useState({});
@@ -25,32 +28,47 @@ export default function Success() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white text-gray-900">
       <div className="bg-gray-100 p-8 rounded-lg shadow-lg text-center w-full max-w-md border-t-4 border-green-600">
+
         <h1 className="text-3xl font-bold text-green-600 mb-4">
-          Payment Successful!
+          {t("paymentSuccessful")}
         </h1>
 
-        <p className="text-lg text-gray-700 mb-6">
-          Thank you{userData?.name ? `, ${userData.name}` : ""}, for supporting{" "}
-          <strong>LearnF1</strong> 🏎️
-        </p>
+        <p
+          className="text-lg text-gray-700 mb-6"
+          dangerouslySetInnerHTML={{
+            __html: t("thankYouSupport", {
+              name: userData?.name ? `, ${userData.name}` : ""
+            })
+          }}
+        />
 
         {!receipt ? (
-          <p className="text-gray-500">Fetching your receipt...</p>
+          <p className="text-gray-500">{t("fetchingReceipt")}</p>
         ) : (
           <div className="bg-white rounded-lg shadow p-4 text-left mb-6 border">
-            <h3 className="font-semibold text-gray-700 mb-2">Donation Receipt</h3>
-            <p><strong>Name:</strong> {userData?.name || "Anonymous"}</p>
-            <p><strong>Email:</strong> {receipt.customer_email}</p>
+            <h3 className="font-semibold text-gray-700 mb-2">
+              {t("donationReceipt")}
+            </h3>
+
             <p>
-              <strong>Amount:</strong> {receipt.amount_total}{" "}
-              {receipt.currency}
+              <strong>{t("nameLabelDynamic")}</strong> {userData?.name || t("anonymous")}
             </p>
+
             <p>
-              <strong>Status:</strong>{" "}
+              <strong>{t("emailLabelDynamic")}</strong> {receipt.customer_email}
+            </p>
+
+            <p>
+              <strong>{t("amountLabel")}</strong> {receipt.amount_total} {receipt.currency}
+            </p>
+
+            <p>
+              <strong>{t("statusLabel")}</strong>{" "}
               <span className="capitalize">{receipt.payment_status}</span>
             </p>
+
             <p className="text-sm text-gray-500 mt-3">
-              Date: {new Date().toLocaleString()}
+              {t("dateLabel")} {new Date().toLocaleString()}
             </p>
           </div>
         )}
@@ -62,24 +80,25 @@ export default function Success() {
             rel="noopener noreferrer"
             className="text-red-600 hover:underline text-sm"
           >
-            View official Stripe receipt
+            {t("viewStripeReceipt")}
           </a>
         )}
 
-
         <div className="text-gray-600 mb-6 text-sm">
-          A copy has also been sent to your email address.
+          {t("receiptCopySent")}
         </div>
 
         <Link
           to="/"
           className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-md transition"
         >
-          Back to Home
+          {t("backToHome")}
         </Link>
+
       </div>
     </div>
   );
+
 }
 
 

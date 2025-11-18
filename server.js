@@ -4,12 +4,17 @@ import Stripe from "stripe";
 import nodemailer from "nodemailer";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 
 dotenv.config();
 
 const app = express();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+//AI stuff.
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 app.use(cors());
 app.use(express.json());
@@ -142,5 +147,85 @@ app.post(
     response.send();
   }
 );
+
+app.post("/generate-quiz", async (req, res) => {
+  try {
+    const { topicTitle, topicDescription, language } = req.body;
+
+    if (!topicDescription) {
+      return res.status(400).json({ error: "Topic description is required." });
+    }
+
+    const prompt = `
+Generate a 5-question multiple choice quiz about the following Formula 1 topic.
+
+QUIZ LANGUAGE: ${language || "English"}
+
+TITLE: ${topicTitle}
+
+CONTENT:
+${topicDescription}
+
+RETURN ONLY VALID JSON IN THIS EXACT FORMAT:
+{
+  "questions": [
+    {
+      "question": "string",
+      "answers": ["A", "B", "C", "D"],
+      "correctIndex": 0,
+      "explanation": "string"
+    }
+  ]
+}
+`;
+
+    // --- CALL GOOGLE AI ---
+    const result = await model.generateContent({
+      contents: [
+        { role: "user", parts: [{ text: prompt }] }
+      ]
+    });
+
+
+    // Try the correct output format
+    let text = "";
+
+    if (result?.response?.text) {
+      text = result.response.text();
+    } else if (typeof result.text === "function") {
+      text = result.text();
+    } else {
+      console.log("FULL RAW RESPONSE:", JSON.stringify(result, null, 2));
+      return res.status(500).json({ error: "Invalid AI response format." });
+    }
+
+    console.log("\n--- RAW AI RESPONSE ---\n", text);
+
+    // Extract JSON from LLM output safely
+    const jsonStart = text.indexOf("{");
+    const jsonEnd = text.lastIndexOf("}") + 1;
+
+    if (jsonStart === -1 || jsonEnd === -1) {
+      return res.status(500).json({ error: "AI did not return JSON." });
+    }
+
+    const jsonSlice = text.substring(jsonStart, jsonEnd);
+
+    let quiz;
+    try {
+      quiz = JSON.parse(jsonSlice);
+    } catch (err) {
+      console.log("JSON PARSE ERROR:", err);
+      return res.status(500).json({ error: "Failed to parse quiz JSON." });
+    }
+
+    return res.json({ quiz });
+
+  } catch (err) {
+    console.error("Quiz generation failed:", err);
+    return res.status(500).json({ error: "Failed to generate quiz." });
+  }
+});
+
 
 app.listen(4000, () => console.log("Server running on port 4000"));

@@ -2,8 +2,10 @@ import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function Login() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -17,22 +19,27 @@ export default function Login() {
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/"); // redirect to home (or account page later)
     } catch (err) {
-      setError("Invalid email or password.");
+      setError(t("invalidCredentials"));
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white text-gray-900">
       <div className="bg-gray-100 p-8 rounded-xl shadow-lg w-full max-w-md border-t-4 border-red-600">
+
         <h1 className="text-3xl font-bold text-center text-red-600 mb-6">
-          Welcome Back
+          {t("welcomeBack")}
         </h1>
 
         {error && <p className="text-red-600 text-center mb-3">{error}</p>}
 
         <form onSubmit={handleLogin} className="space-y-5">
+
           <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
+            <label className="block text-sm font-medium mb-1">
+              {t("emailLabel")}
+            </label>
+
             <input
               type="email"
               value={email}
@@ -43,7 +50,10 @@ export default function Login() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
+            <label className="block text-sm font-medium mb-1">
+              {t("passwordLabel")}
+            </label>
+
             <input
               type="password"
               value={password}
@@ -57,10 +67,12 @@ export default function Login() {
             type="submit"
             className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded transition"
           >
-            Log In
+            {t("login")}
           </button>
+
         </form>
       </div>
     </div>
   );
+
 }

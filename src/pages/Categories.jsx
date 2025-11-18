@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { getCategories } from "../utils/categories";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 
 export default function Categories() {
+    const { t } = useTranslation()
     const [categories, setCategories] = useState([]);
     const { user, userData } = useAuth();
     const navigate = useNavigate();
@@ -19,15 +21,16 @@ export default function Categories() {
     return (
         <div className="min-h-screen bg-white text-gray-900 p-10">
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-4xl font-bold text-red-600">Categories</h1>
+                <h1 className="text-4xl font-bold text-red-600">
+                    {t("categories")}
+                </h1>
 
-                {/* ✅ Show add button only for Admins */}
                 {userData?.role === "admin" && (
                     <button
                         onClick={() => navigate("/create-category")}
                         className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-2xl font-semibold"
                     >
-                        Add Category
+                        {t("addCategory")}
                     </button>
                 )}
             </div>
@@ -42,15 +45,19 @@ export default function Categories() {
                         >
                             <h2 className="text-2xl font-bold text-red-800">{cat.title}</h2>
                             <h4 className="text-1s font-medium text-black">{cat.description}</h4>
+
                             <p className="text-sm text-gray-600 mt-2">
-                                {cat.topics?.length || 0} topics
+                                {t("topicsCount", { count: cat.topics?.length || 0 })}
                             </p>
                         </div>
                     ))
                 ) : (
-                    <p className="font-medium text-left mx-12">No categories yet.</p>
+                    <p className="font-medium text-left mx-12">
+                        {t("noCategories")}
+                    </p>
                 )}
             </div>
         </div>
     );
+
 }

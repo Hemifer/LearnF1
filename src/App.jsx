@@ -15,6 +15,10 @@ import Categories from "./pages/Categories";
 import CategoryDetail from "./pages/CategoryDetail";
 import CreateCategory from "./pages/CreateCategory";
 import EditCategory from "./pages/EditCategory";
+import AccountEdit from "./pages/AccountEdit";
+import Account from "./pages/Account";
+import About from "./pages/About"
+import QuizPage from "./pages/QuizPage";
 
 function App() {
   return (
@@ -26,6 +30,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/SignUp" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="/account-edit" element={<AccountEdit />} />
             <Route path="/topics" element={<Topics />} />
             <Route path="/create-topic" element={<CreateTopic />} />
             <Route path="/topic/:id" element={<TopicDetail />} />
@@ -37,6 +43,8 @@ function App() {
             <Route path="/donate" element={<Donate />} />
             <Route path="/success" element={<Success />} />
             <Route path="/cancel" element={<Cancel />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/quiz/:id" element={<QuizPage />} />
           </Routes>
         </main>
         <Footer />
